@@ -1,0 +1,102 @@
+name: "01 - Infrastructure Network Deploy (OIDC Federated)"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'azure/root_module/infrastructure/**'
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: 'Target Deployment Environment (Overrides automatic branch matching on manual runs)'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+permissions:
+  contents: read
+  id-token: write 
+    
+jobs:
+  terraform:
+    name: "TF Network Deployment"
+    runs-on: ubuntu-latest
+    
+    # ADVANCED SELECTION: If triggered manually, use the selected input choice.
+    # If triggered automatically: 'main' maps to staging (as a pre-prod gate), 'develop' maps to development.
+    environment: >-
+      ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment || 
+          (github.ref_name == 'main' && 'staging' || 'development') }}
+
+    defaults:
+      run:
+        working-directory: ./azure/root_module/infrastructure
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # Sets a singular environment variable (`TARGET_ENV`) based on the job's dynamic environment selection
+      - name: Set Environment Context Variables
+        run: |
+          echo "TARGET_ENV=${{ jobs.terraform.environment }}" >> $GITHUB_ENV
+
+      # Standard engine loading steps continue below...
+      - name: Setup Terraform Core Engine
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.0
+
+      - name: Authenticate to Azure via OIDC Federation
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Initialize
+        run: |
+          terraform init \
+            -backend-config="storage_account_name=${{ vars.TF_STATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=network-state" \
+            -backend-config="key=${{ env.TARGET_ENV }}.terraform.tfstate"
+        env:
+          ARM_USE_OIDC: true
+          ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Execution Plan
+        run: |
+          terraform plan \
+            -var-file="./environments/${{ env.TARGET_ENV }}.tfvars" \
+            -out=tfplan
+        env:
+          ARM_USE_OIDC: true
+          ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # Strict Enterprise Guard Rail:
+      # Automatically run the apply step for development and staging targets.
+      # If the target resolves to 'production', block it unless it was manually run and approved via UI gates.
+      - name: Terraform Apply Execution Frame
+        if: env.TARGET_ENV != 'production' || github.event_name == 'workflow_dispatch'
+        run: terraform apply -auto-approve tfplan
+        env:
+          ARM_USE_OIDC: true
+          ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
