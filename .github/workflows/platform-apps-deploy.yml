@@ -6,34 +6,33 @@ on:
       - main
       - develop
     paths:
-      - 'azure/root_module/applications/**'
+      - "azure/root_module/applications/**"
+
   workflow_dispatch:
     inputs:
       target_environment:
-        description: 'Target Deployment Environment (Overrides automatic branch matching on manual runs)'
+        description: "Target deployment environment"
         required: true
-        default: 'development'
+        default: development
         type: choice
         options:
           - development
           - staging
           - production
 
-# --- CRITICAL OIDC CONFIGURATION 1 ---
-# Grants required permissions to request the short-lived OIDC JWT from GitHub
 permissions:
   contents: read
-  id-token: write 
+  id-token: write
 
 jobs:
   terraform:
-    name: "TF App Plane Deployment"
+    name: TF App Plane Deployment
     runs-on: ubuntu-latest
-    
-    # Resolves the GitHub Environment dynamically based on trigger type and branch context
-    environment: >-
-      ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment || 
-          (github.ref_name == 'main' && 'staging' || 'development') }}
+
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment || (github.ref_name == 'main' && 'staging' || 'development') }}
+
+    env:
+      TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment || (github.ref_name == 'main' && 'staging' || 'development') }}
 
     defaults:
       run:
@@ -43,44 +42,44 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # Maps the job's resolved environment token down to a runner variable for backend/tfvars targets
-      - name: Set Environment Context Variables
+      - name: Show Deployment Context
         run: |
-          echo "TARGET_ENV=${{ jobs.terraform.environment }}" >> $GITHUB_ENV
+          echo "Environment: $TARGET_ENV"
 
-      # Standard infrastructure engine loading
-      - name: Setup Terraform Core Engine
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.8.0
+          terraform_version: "1.8.0"
 
-      # --- CRITICAL OIDC CONFIGURATION 2 ---
-      # Exchanging GitHub's short-lived identity proof for an ephemeral Azure access token
-      - name: Authenticate to Azure via OIDC Federation
+      - name: Login to Azure (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      # Initializing the backend with full OIDC state integration
-      - name: Terraform Initialize
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Init
         run: |
           terraform init \
             -backend-config="storage_account_name=${{ vars.TF_STATE_STORAGE_ACCOUNT }}" \
             -backend-config="container_name=application-state" \
-            -backend-config="key=${{ env.TARGET_ENV }}.terraform.tfstate"
+            -backend-config="key=${TARGET_ENV}.terraform.tfstate"
         env:
           ARM_USE_OIDC: true
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      # Compiling the plan based on the environment's specific .tfvars profile
-      - name: Terraform Execution Plan
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
         run: |
           terraform plan \
-            -var-file="./environments/${{ env.TARGET_ENV }}.tfvars" \
+            -var-file="./environments/${TARGET_ENV}.tfvars" \
             -out=tfplan
         env:
           ARM_USE_OIDC: true
@@ -88,10 +87,7 @@ jobs:
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      # Strict Enterprise Gate: Automatically execute updates for dev and staging footprints.
-      # If the resolved target is 'production', it will only execute if run via manual dispatch 
-      # and approved by your repository environment's required reviewer locks.
-      - name: Terraform Apply Execution Frame
+      - name: Terraform Apply
         if: env.TARGET_ENV != 'production' || github.event_name == 'workflow_dispatch'
         run: terraform apply -auto-approve tfplan
         env:
