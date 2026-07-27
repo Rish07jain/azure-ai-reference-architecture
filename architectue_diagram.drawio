@@ -1,0 +1,148 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Azure Enterprise AI Hub and Spoke Architecture" id="vfHb3aeLlrWHicz0LYSP">
+    <mxGraphModel dx="694" dy="599" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-1" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#6c757d;fontStyle=1;fontSize=14;startSize=30;" value="External Edge &amp; Remote Access Layer" vertex="1">
+          <mxGeometry height="980" width="300" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-2" parent="g9bqUMfzAh0t4Q5Uonou-1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0288d1;fontStyle=1;" value="Internet Users / Clients" vertex="1">
+          <mxGeometry height="60" width="200" x="50" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-3" parent="g9bqUMfzAh0t4Q5Uonou-1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;" value="Cloudflare Edge WAF / DDoS" vertex="1">
+          <mxGeometry height="60" width="200" x="50" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-4" parent="g9bqUMfzAh0t4Q5Uonou-1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontStyle=1;" value="Remote Engineers / VPN Users" vertex="1">
+          <mxGeometry height="60" width="200" x="50" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-5" parent="g9bqUMfzAh0t4Q5Uonou-1" style="shape=process;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontStyle=1;" value="GitHub Enterprise / OIDC OIDC CI/CD" vertex="1">
+          <mxGeometry height="70" width="200" x="50" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-6" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3f51b5;fontStyle=1;fontSize=14;startSize=30;" value="Hub Virtual Network (10.100.0.0/16)" vertex="1">
+          <mxGeometry height="980" width="340" x="380" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-7" parent="g9bqUMfzAh0t4Q5Uonou-6" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#3f51b5;startSize=25;" value="AppGatewaySubnet (10.100.0.0/24)" vertex="1">
+          <mxGeometry height="110" width="300" x="20" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-8" parent="g9bqUMfzAh0t4Q5Uonou-7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3f51b5;fontColor=#ffffff;fontStyle=1;" value="Azure Application Gateway v2 (WAF)" vertex="1">
+          <mxGeometry height="50" width="250" x="25" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-9" parent="g9bqUMfzAh0t4Q5Uonou-6" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d32f2f;startSize=25;" value="AzureFirewallSubnet (10.100.1.0/24)" vertex="1">
+          <mxGeometry height="120" width="300" x="20" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-10" parent="g9bqUMfzAh0t4Q5Uonou-9" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d32f2f;fontColor=#ffffff;fontStyle=1;" value="Azure Firewall Premium&#xa;(FQDN / Egress Rules)" vertex="1">
+          <mxGeometry height="60" width="250" x="25" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-11" parent="g9bqUMfzAh0t4Q5Uonou-6" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;startSize=25;" value="GatewaySubnet (10.100.2.0/24)" vertex="1">
+          <mxGeometry height="110" width="300" x="20" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-12" parent="g9bqUMfzAh0t4Q5Uonou-11" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2e7d32;fontColor=#ffffff;fontStyle=1;" value="Virtual Network Gateway (P2S/S2S VPN)" vertex="1">
+          <mxGeometry height="50" width="250" x="25" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-13" parent="1" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e0f2f1;strokeColor=#00695c;fontStyle=1;fontSize=14;startSize=30;" value="Spoke Virtual Network (10.240.0.0/16)" vertex="1">
+          <mxGeometry height="980" width="790" x="770" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-14" parent="g9bqUMfzAh0t4Q5Uonou-13" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#00695c;startSize=25;" value="snet-integration (10.240.2.0/24)" vertex="1">
+          <mxGeometry height="110" width="360" x="20" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-15" parent="g9bqUMfzAh0t4Q5Uonou-14" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00695c;fontColor=#ffffff;fontStyle=1;" value="Azure API Management (APIM Internal)&#xa;[JWT Validation, Claims &amp; Throttling]" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-16" parent="g9bqUMfzAh0t4Q5Uonou-13" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288d1;startSize=25;" value="snet-compute (10.240.3.0/22)" vertex="1">
+          <mxGeometry height="280" width="360" x="410" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-17" parent="g9bqUMfzAh0t4Q5Uonou-16" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0288d1;startSize=25;fontStyle=1;" value="Private AKS Cluster (azmaks.io)" vertex="1">
+          <mxGeometry height="230" width="330" x="15" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-18" parent="g9bqUMfzAh0t4Q5Uonou-17" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0288d1;fontColor=#ffffff;fontStyle=1;" value="NGINX Internal Controller" vertex="1">
+          <mxGeometry height="40" width="300" x="15" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-19" parent="g9bqUMfzAh0t4Q5Uonou-17" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0288d1;fontColor=#ffffff;fontStyle=1;" value="PlatformGPT AI Chatbot Pods&#xa;(User-Assigned Managed Identity)" vertex="1">
+          <mxGeometry height="50" width="300" x="15" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-20" parent="g9bqUMfzAh0t4Q5Uonou-17" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0288d1;fontColor=#ffffff;fontStyle=1;" value="RAG Sync CronJob Pod&#xa;(Confluence Incremental Fetch)" vertex="1">
+          <mxGeometry height="60" width="300" x="15" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-21" parent="g9bqUMfzAh0t4Q5Uonou-13" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#00796b;startSize=25;" value="snet-dns-inbound (10.240.8.0/26)" vertex="1">
+          <mxGeometry height="110" width="360" x="20" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-22" parent="g9bqUMfzAh0t4Q5Uonou-21" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00796b;fontColor=#ffffff;fontStyle=1;" value="Azure Private DNS Resolver&#xa;(Inbound Endpoint - 168.63.129.16 Forwarder)" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-23" parent="g9bqUMfzAh0t4Q5Uonou-13" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;startSize=25;" value="snet-agents (10.240.1.0/24)" vertex="1">
+          <mxGeometry height="110" width="360" x="20" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-24" parent="g9bqUMfzAh0t4Q5Uonou-23" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7b1fa2;fontColor=#ffffff;fontStyle=1;" value="Self-Hosted Build/Deployment Runners&#xa;(Secure Private Deployment Execution Plane)" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-25" parent="g9bqUMfzAh0t4Q5Uonou-13" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f57c00;startSize=25;" value="snet-data / Private Endpoint Subnet (10.240.7.0/24)" vertex="1">
+          <mxGeometry height="570" width="360" x="410" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-26" parent="g9bqUMfzAh0t4Q5Uonou-25" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;" value="Private Endpoint: Azure AI Foundry / OpenAI&#xa;[privatelink.openai.azure.com]" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-27" parent="g9bqUMfzAh0t4Q5Uonou-25" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;" value="Private Endpoint: Azure Key Vault&#xa;[privatelink.vaultcore.azure.net]" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-28" parent="g9bqUMfzAh0t4Q5Uonou-25" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;" value="Private Endpoint: Azure Cosmos DB Vector Store&#xa;[privatelink.documents.azure.com]" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-29" parent="g9bqUMfzAh0t4Q5Uonou-25" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;" value="Private Endpoint: Azure Blob/File Storage&#xa;[privatelink.blob.core.windows.net]" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-30" parent="g9bqUMfzAh0t4Q5Uonou-25" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontStyle=1;" value="Private Endpoint: Azure Container Registry&#xa;[privatelink.azurecr.io]" vertex="1">
+          <mxGeometry height="60" width="320" x="20" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-31" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0288d1;" target="g9bqUMfzAh0t4Q5Uonou-3" value="HTTPS">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-32" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#e65100;" target="g9bqUMfzAh0t4Q5Uonou-8" value="Filtered Edge Traffic">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-33" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#3f51b5;" target="g9bqUMfzAh0t4Q5Uonou-15" value="Private VNet Peering">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-34" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#00695c;" target="g9bqUMfzAh0t4Q5Uonou-18" value="L7 Reverse Proxy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-35" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0288d1;" target="g9bqUMfzAh0t4Q5Uonou-19" value="Ingress Route">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-36" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#e65100;" target="g9bqUMfzAh0t4Q5Uonou-26" value="Managed Identity / Private Link">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-37" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#e65100;" value="Managed Identity / Private Link">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1360" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-38" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#d32f2f;" target="g9bqUMfzAh0t4Q5Uonou-10" value="Egress to SaaS via Firewall">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="225" />
+              <mxPoint x="750" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-39" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#2e7d32;" target="g9bqUMfzAh0t4Q5Uonou-12" value="VPN Tunnel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-40" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#00796b;" target="g9bqUMfzAh0t4Q5Uonou-22" value="DNS Lookups">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-41" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#7b1fa2;" target="g9bqUMfzAh0t4Q5Uonou-24" value="Deploy / OIDC Sync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g9bqUMfzAh0t4Q5Uonou-42" edge="1" parent="1" source="g9bqUMfzAh0t4Q5Uonou-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#7b1fa2;" target="g9bqUMfzAh0t4Q5Uonou-17" value="Internal Deployment">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="880" />
+              <mxPoint x="600" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
